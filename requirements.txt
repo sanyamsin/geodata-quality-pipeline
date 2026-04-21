@@ -1,0 +1,17 @@
+geopandas>=0.14
+shapely>=2.0
+fiona>=1.9
+pyproj>=3.6
+pandas>=2.0
+numpy>=1.24
+requests>=2.31
+pyyaml>=6.0
+streamlit>=1.32
+plotly>=5.18
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+geoalchemy2>=0.14
+folium>=0.16
+streamlit-folium>=0.18
+rich>=13.0
+python-dotenv>=1.0

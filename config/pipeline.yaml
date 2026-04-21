@@ -1,0 +1,102 @@
+# ============================================================
+# Geodata Quality Pipeline — Configuration
+# Version: 1.0
+# ============================================================
+
+pipeline:
+  name: "Humanitarian Geodata Quality Pipeline"
+  version: "1.0"
+  description: "Automated geospatial data quality monitoring for humanitarian operations"
+
+# ── DATABASE ─────────────────────────────────────────────────
+database:
+  host: "localhost"
+  port: 5432
+  name: "geodata_pipeline"
+  user: "pipeline_user"
+  password: "pipeline_pass"
+  schema: "public"
+
+# ── DATA SOURCES ─────────────────────────────────────────────
+sources:
+  - id: "hdx_rca_admin"
+    name: "RCA Administrative Boundaries (OCHA HDX)"
+    type: "hdx"
+    dataset_id: "cod-ab-caf"
+    resource_name: "caf_admbnda_adm1_ocha"
+    domain: "DD01"
+    update_frequency: "quarterly"
+    expected_crs: "EPSG:4326"
+    geometry_type: "Polygon"
+
+  - id: "hdx_mrt_admin"
+    name: "Mauritania Administrative Boundaries (OCHA HDX)"
+    type: "hdx"
+    dataset_id: "cod-ab-mrt"
+    resource_name: "mrt_admbnda_adm1_ocha"
+    domain: "DD01"
+    update_frequency: "quarterly"
+    expected_crs: "EPSG:4326"
+    geometry_type: "Polygon"
+
+  - id: "osm_health_facilities"
+    name: "Health Facilities — OpenStreetMap (Overpass API)"
+    type: "overpass"
+    query: "node[amenity=hospital][bbox=-17.0,14.7,-4.8,27.3]"
+    domain: "DD03"
+    update_frequency: "monthly"
+    expected_crs: "EPSG:4326"
+    geometry_type: "Point"
+
+  - id: "reliefweb_disasters"
+    name: "Disaster Events — ReliefWeb API"
+    type: "reliefweb"
+    endpoint: "https://api.reliefweb.int/v1/disasters"
+    filters:
+      country: ["Mauritania", "Central African Republic", "Senegal"]
+      status: ["ongoing", "alert"]
+    domain: "DD05"
+    update_frequency: "daily"
+    expected_crs: "EPSG:4326"
+    geometry_type: "Point"
+
+# ── QUALITY CHECKS ───────────────────────────────────────────
+quality_checks:
+  completeness:
+    enabled: true
+    threshold: 0.95          # 95% of records must have non-null geometry
+    mandatory_fields: ["geometry", "name", "source", "date_ingested"]
+
+  validity:
+    enabled: true
+    checks:
+      - "geometry_is_valid"
+      - "geometry_not_empty"
+      - "coordinates_in_bounds"
+      - "crs_matches_expected"
+
+  consistency:
+    enabled: true
+    checks:
+      - "no_duplicate_geometries"
+      - "no_self_intersections"
+      - "polygon_winding_order"
+
+  timeliness:
+    enabled: true
+    max_age_days:
+      daily: 2
+      weekly: 9
+      monthly: 35
+      quarterly: 95
+
+  uniqueness:
+    enabled: true
+    dedup_fields: ["geometry", "name"]
+    threshold: 0.99           # max 1% duplicates allowed
+
+# ── ALERTS ───────────────────────────────────────────────────
+alerts:
+  quality_score_threshold: 0.80    # alert if overall score drops below 80%
+  critical_check_failure: true     # always alert on critical check failure
+  log_file: "logs/pipeline.log"
