@@ -7,6 +7,7 @@ PostGIS · Python · Streamlit · DAMA-DMBOK v2 · ISO 19115
 [![PostGIS](https://img.shields.io/badge/PostGIS-15--3.3-336791.svg)](https://postgis.net)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.32-FF4B4B.svg)](https://streamlit.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Hugging%20Face-yellow)](https://huggingface.co/spaces/Lokozu/geodata-quality-pipeline)
 
 ---
 
